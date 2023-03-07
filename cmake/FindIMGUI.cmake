@@ -1,0 +1,26 @@
+SET(_imgui_HEADER_SEARCH_DIRS
+"/usr/include"
+"/usr/local/include"
+"${CMAKE_SOURCE_DIR}/include"
+"C:/Program Files (x86)/imgui" )
+# check environment variable
+SET(_imgui_ENV_ROOT_DIR "$ENV{IMGUI_ROOT_DIR}")
+IF(NOT IMGUI_ROOT_DIR AND _imgui_ENV_ROOT_DIR)
+	SET(IMGUI_ROOT_DIR "${_imgui_ENV_ROOT_DIR}")
+ENDIF(NOT IMGUI_ROOT_DIR AND _imgui_ENV_ROOT_DIR)
+# put user specified location at beginning of search
+IF(IMGUI_ROOT_DIR)
+	SET(_imgui_HEADER_SEARCH_DIRS "${IMGUI_ROOT_DIR}"
+	"${IMGUI_ROOT_DIR}/include"
+	${_imgui_HEADER_SEARCH_DIRS})
+ENDIF(IMGUI_ROOT_DIR)
+# locate header
+FIND_PATH(IMGUI_INCLUDE_DIR "imgui/imgui.h"
+PATHS ${_imgui_HEADER_SEARCH_DIRS})
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(IMGUI DEFAULT_MSG
+IMGUI_INCLUDE_DIR)
+IF(IMGUI_FOUND)
+	SET(IMGUI_INCLUDE_DIRS "${IMGUI_INCLUDE_DIR}")
+	MESSAGE(STATUS "IMGUI_INCLUDE_DIR = ${IMGUI_INCLUDE_DIR}")
+ENDIF(IMGUI_FOUND)
