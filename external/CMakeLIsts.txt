@@ -42,6 +42,10 @@ function(git_download GIT_URL LIB_PATH LIB_NAME)
                     COMMAND git checkout tags/${GITD_TAG}
                     WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
                 )
+                execute_process(
+                    COMMAND git pull
+                    WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
+                )
             endif()
         elseif(DEFINED GITD_BRANCH)
             execute_process(
@@ -63,6 +67,10 @@ function(git_download GIT_URL LIB_PATH LIB_NAME)
                 message(STATUS "Updating ${LIB_NAME} to latest...")
                 execute_process(
                     COMMAND git checkout origin ${GITD_BRANCH}
+                    WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
+                )
+                execute_process(
+                    COMMAND git pull
                     WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
                 )
             endif()
@@ -94,6 +102,10 @@ function(git_download GIT_URL LIB_PATH LIB_NAME)
                 message(STATUS "Updating ${LIB_NAME} to latest...")
                 execute_process(
                     COMMAND git checkout ${default_branch}
+                    WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
+                )
+                execute_process(
+                    COMMAND git pull
                     WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
                 )
             endif()

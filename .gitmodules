@@ -11,8 +11,8 @@
 	path = external/entt
 	url = https://github.com/skypjack/entt
 [submodule "external/imgui"]
-    path = external/imgui
-    url = https://github.com/ocornut/imgui
+	path = external/imgui
+	url = https://github.com/ocornut/imgui
 [submodule "external/tinyobj"]
-    path = external/tinyobj
-    url = https://github.com/tinyobjloader/tinyobjloader
+	path = external/tinyobj
+	url = https://github.com/tinyobjloader/tinyobjloader
