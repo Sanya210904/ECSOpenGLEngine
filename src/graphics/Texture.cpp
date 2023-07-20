@@ -1,9 +1,9 @@
-#include "Texture.hpp"
+#include <graphics/Texture.hpp>
 
 #include <iostream>
 
 #define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
+#include <stb_image.h>
 
 Texture::Texture(const std::string &filePath, bool gamma)
     :

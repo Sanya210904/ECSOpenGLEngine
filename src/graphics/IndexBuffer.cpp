@@ -1,4 +1,4 @@
-#include "IndexBuffer.hpp"
+#include <graphics/IndexBuffer.hpp>
 
 #include <iostream>
 

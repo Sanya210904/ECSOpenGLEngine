@@ -1,4 +1,4 @@
-#include "SpriteFactory.hpp"
+#include <componentsFactory/SpriteFactory.hpp>
 
 #include <array>
 

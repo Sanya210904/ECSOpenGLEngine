@@ -1,4 +1,4 @@
-#include "Model.hpp"
+#include <graphics/Model.hpp>
 
 #include <filesystem>
 #include <functional>
@@ -6,7 +6,7 @@
 #include <glm/gtx/hash.hpp>
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include <tinyobj/tiny_obj_loader.h>
+#include <tiny_obj_loader.h>
 
 #include <graphics/VertexBuffer.hpp>
 #include <graphics/IndexBuffer.hpp>

@@ -1,0 +1,205 @@
+function(git_download GIT_URL LIB_PATH LIB_NAME)
+    set(GIT_FETCH "")
+    set(GIT_PULL "")
+    set(GIT_CLONE "")
+
+    set(one_value_args BRANCH TAG)
+    cmake_parse_arguments(GITD "" "${one_value_args}" "" ${ARGN})
+
+    if(DEFINED GITD_TAG)
+        message(STATUS "${LIB_NAME}: tag defined, using tag: ${GITD_TAG}")
+        list(APPEND GIT_FETCH "git" "fetch" "origin" "tag" "${GITD_TAG}")
+        list(APPEND GIT_CLONE "git" "clone" "--branch" "${GITD_TAG}")
+    elseif(DEFINED GITD_BRANCH)
+        message(STATUS "${LIB_NAME}: branch defined, using branch: ${GITD_BRANCH}")
+        list(APPEND GIT_FETCH "git" "switch" "${GITD_BRANCH}")
+        list(APPEND GIT_CLONE "git" "clone" "--branch" "${GITD_BRANCH}")
+    else()
+        message(STATUS "${LIB_NAME}: using latest origin repo")
+        list(APPEND GIT_FETCH "git" "fetch" "origin")
+        list(APPEND GIT_CLONE "git" "clone")
+    endif()
+
+    if(EXISTS "${LIB_PATH}/${LIB_NAME}" AND IS_DIRECTORY "${LIB_PATH}/${LIB_NAME}")
+        execute_process(
+            COMMAND ${GIT_FETCH}
+            WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
+        )
+
+        if(DEFINED GITD_TAG)
+            execute_process(
+                COMMAND git describe --tags
+                WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
+                OUTPUT_VARIABLE tag
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+
+            if(${tag} STREQUAL "${GITD_TAG}")
+                message(STATUS "${LIB_NAME} is on the tag ${GITD_TAG}")
+            else()
+                message(STATUS "Switching ${LIB_NAME} to ${GITD_TAG}...")
+                execute_process(
+                    COMMAND git checkout tags/${GITD_TAG}
+                    WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
+                )
+            endif()
+        elseif(DEFINED GITD_BRANCH)
+            execute_process(
+                COMMAND git rev-parse origin/${GITD_BRANCH}
+                WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
+                OUTPUT_VARIABLE master_commit
+                OUTPUT_STRIP_TRAILING_WHITESPACE  
+            )
+            execute_process(
+                COMMAND git rev-parse HEAD
+                WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
+                OUTPUT_VARIABLE current_commit
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+
+            if(${current_commit} STREQUAL ${master_commit})
+                message(STATUS "${LIB_NAME} is on the branch ${GITD_BRANCH}")
+            else()
+                message(STATUS "Updating ${LIB_NAME} to latest...")
+                execute_process(
+                    COMMAND git checkout origin ${GITD_BRANCH}
+                    WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
+                )
+            endif()
+        else()
+            execute_process(
+                COMMAND git symbolic-ref refs/remotes/origin/HEAD
+                WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
+                OUTPUT_VARIABLE default_branch
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+            string(REPLACE "refs/remotes/origin/" "" default_branch ${default_branch})
+
+            execute_process(
+                COMMAND git rev-parse origin/${default_branch}
+                WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
+                OUTPUT_VARIABLE master_commit
+                OUTPUT_STRIP_TRAILING_WHITESPACE  
+            )
+            execute_process(
+                COMMAND git rev-parse HEAD
+                WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
+                OUTPUT_VARIABLE current_commit
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+
+            if(${current_commit} STREQUAL ${master_commit})
+                message(STATUS "${LIB_NAME} is on the latest master branch")
+            else()
+                message(STATUS "Updating ${LIB_NAME} to latest...")
+                execute_process(
+                    COMMAND git checkout ${default_branch}
+                    WORKING_DIRECTORY ${LIB_PATH}/${LIB_NAME}
+                )
+            endif()
+        endif()
+    else()
+        execute_process(
+            COMMAND ${GIT_CLONE} "${GIT_URL}" ${LIB_NAME}
+            WORKING_DIRECTORY ${LIB_PATH}
+        )
+    endif()
+endfunction()
+
+include(ExternalProject) 
+
+set(EXTERNAL_SOURCE_LOCATION ${CMAKE_SOURCE_DIR}/external)
+
+#==================== GLFW ====================
+
+git_download(
+    "https://github.com/glfw/glfw.git"
+    ${EXTERNAL_SOURCE_LOCATION}
+    glfw
+)
+
+set(GLFW_DIR ${EXTERNAL_SOURCE_LOCATION}/glfw CACHE INTERNAL "")
+set(GLFW_INCLUDE_DIR ${GLFW_DIR}/include CACHE INTERNAL "")
+
+option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
+option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
+option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
+option(GLFW_INSTALL "Generate installation target" OFF)
+option(GLFW_DOCUMENT_INTERNALS "Include internals in documentation" OFF)
+
+add_subdirectory(${GLFW_DIR})
+
+message(STATUS "GLFW include dir: ${GLFW_INCLUDE_DIR}")
+
+#==================== ENTT ====================
+
+git_download(
+    "https://github.com/glfw/glfw.git"
+    ${EXTERNAL_SOURCE_LOCATION}
+    entt
+)
+
+set(ENTT_DIR ${EXTERNAL_SOURCE_LOCATION}/entt CACHE INTERNAL "")
+set(ENTT_INCLUDE_DIR ${ENTT_DIR}/single_include CACHE INTERNAL "")
+
+add_subdirectory(${ENTT_DIR})
+
+message(STATUS "Entt include dir: ${ENTT_INCLUDE_DIR}")
+
+#==================== GLM =====================
+
+git_download(
+    "https://github.com/g-truc/glm.git"
+    ${EXTERNAL_SOURCE_LOCATION}
+    glm
+)
+
+set(GLM_DIR "${EXTERNAL_SOURCE_LOCATION}/glm" CACHE INTERNAL "")
+set(GLM_INCLUDE_DIR "${GLM_DIR}" CACHE INTERNAL "")
+
+add_subdirectory(${GLM_DIR})
+
+message(STATUS "Glm include dir: ${GLM_INCLUDE_DIR}")
+
+#==================== STB =====================
+
+git_download(
+    "https://github.com/nothings/stb.git"
+    ${EXTERNAL_SOURCE_LOCATION}
+    stb
+)
+
+set(STB_DIR "${EXTERNAL_SOURCE_LOCATION}/stb" CACHE INTERNAL "")
+set(STB_INCLUDE_DIR "${STB_DIR}" CACHE INTERNAL "")
+
+message(STATUS "Stb include dir: ${STB_INCLUDE_DIR}")
+
+#================== TINY_OBJ ==================
+
+git_download(
+    "https://github.com/tinyobjloader/tinyobjloader.git"
+    ${EXTERNAL_SOURCE_LOCATION}
+    tinyobj
+)
+
+set(TINY_OBJ_DIR "${EXTERNAL_SOURCE_LOCATION}/tinyobj" CACHE INTERNAL "")
+set(TINY_OBJ_INCLUDE_DIR "${TINY_OBJ_DIR}" CACHE INTERNAL "")
+
+# add_subdirectory(${TINY_OBJ_DIR})
+
+message(STATUS "Tiny Obj include dir: ${TINY_OBJ_INCLUDE_DIR}")
+
+#==================== IMGUI ===================
+
+git_download(
+    "https://github.com/ocornut/imgui.git"
+    ${EXTERNAL_SOURCE_LOCATION}
+    imgui
+)
+
+set(IMGUI_DIR "${EXTERNAL_SOURCE_LOCATION}/imgui" CACHE INTERNAL "")
+set(IMGUI_INCLUDE_DIR "${IMGUI_DIR}" CACHE INTERNAL "")
+
+message(STATUS "ImGui include dir: ${IMGUI_INCLUDE_DIR}")
+
+## TODO: lib build

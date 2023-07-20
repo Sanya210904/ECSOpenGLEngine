@@ -1,9 +1,9 @@
-#include "TextureArray.hpp"
+#include <graphics/TextureArray.hpp>
 
 #include <iostream>
 
 // #define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
+#include <stb_image.h>
 
 TextureArray::TextureArray(const std::string& filePath, int tileWidth, int tileHeight)
 {

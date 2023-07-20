@@ -1,4 +1,4 @@
-#include "Entity.hpp"
+#include <scene/Entity.hpp>
 
 Entity::Entity(entt::entity handle, Scene *scene)
     :

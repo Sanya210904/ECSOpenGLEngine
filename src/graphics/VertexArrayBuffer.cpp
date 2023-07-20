@@ -1,8 +1,7 @@
-#include "VertexArrayBuffer.hpp"
-#include "VertexBuffer.hpp"
-#include "VertexBufferLayout.hpp"
-#include "IndexBuffer.hpp"
-
+#include <graphics/VertexArrayBuffer.hpp>
+#include <graphics/VertexBuffer.hpp>
+#include <graphics/VertexBufferLayout.hpp>
+#include <graphics/IndexBuffer.hpp>
 
 VertexArrayBuffer::VertexArrayBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout)
 {

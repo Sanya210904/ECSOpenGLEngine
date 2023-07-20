@@ -1,4 +1,4 @@
-#include "PrimitiveFactory.hpp"
+#include <componentsFactory/PrimitiveFactory.hpp>
 
 #include <array>
 #include <vector>

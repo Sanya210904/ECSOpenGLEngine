@@ -1,4 +1,4 @@
-#include "CameraFactory.hpp"
+#include <componentsFactory/CameraFactory.hpp>
 
 CameraComponent CameraFactory::createPerspectiveCamera(unsigned int scrWidth, unsigned int scrHeight, float fov, float nearClip, float farClip)
 {

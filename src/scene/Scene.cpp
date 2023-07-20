@@ -1,6 +1,6 @@
-#include "Scene.hpp"
+#include <scene/Scene.hpp>
 
-#include "Entity.hpp"
+#include <scene/Entity.hpp>
 #include <components/IDComponent.hpp>
 #include <components/TagComponent.hpp>
 #include <components/TransformComponent.hpp>
