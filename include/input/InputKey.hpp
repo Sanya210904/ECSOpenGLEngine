@@ -150,11 +150,11 @@ enum class InputKey
 
 enum class InputSource
 {
-    UNKNOWN,
+    UNKNOWN = 0,
 
-    KEYBOARD,
-    MOUSE,
-    GAMEPAD
+    KEYBOARD = 1 << 0,
+    MOUSE = 1 << 1,
+    GAMEPAD = 1 << 2
 };
 
 inline InputSource getInputSourceFromKey(InputKey key)

@@ -43,8 +43,8 @@ void InputManager::processInput()
 
         for (auto& [key, state] : newState)
         {
+            if (static_cast<unsigned int>(getInputSourceFromKey(key)) & m_deactivatedSourcesFlags) continue;
             float newVal = state.value;
-            auto debugVal = device.currentState;
 
             if (device.currentState[key].value != newVal)
             {
@@ -69,14 +69,14 @@ std::vector<InputManager::ActionEvent> InputManager::genActionEvent(int deviceIn
     
     for (auto& action : actions)
     {
-        actionEvents.emplace_back([&](){
-            ActionEvent _;
-            _.actionName = action;
-            _.source = source;
-            _.sourceIndex = deviceIndex;
-            _.value = newVal;
-            return _;
-        }());
+        actionEvents.push_back({
+            action,
+            source,
+            deviceIndex,
+            newVal
+        });
+
+        m_actionsValue[action] = newVal;
     }
 
     return actionEvents;
@@ -84,6 +84,7 @@ std::vector<InputManager::ActionEvent> InputManager::genActionEvent(int deviceIn
 
 void InputManager::propagateActionEvent(const ActionEvent& event)
 {
+    if (static_cast<unsigned int>(event.source) & m_deactivatedSourcesFlags) return;
     if (m_actionCallbacks[event.actionName].empty()) return;
     for (size_t i = m_actionCallbacks[event.actionName].size() - 1; i >= 0; --i)
     {
@@ -103,4 +104,22 @@ void InputManager::remDevice(const InputDeviceType& type, int inputIndex)
     {
         return device.type == type && device.index == inputIndex;
     });
+}
+
+float InputManager::getActionIsCalled(const std::string& actionName)
+{
+    if (m_actionsValue.find(actionName) == m_actionsValue.end())
+        return 0.0f;
+
+    return m_actionsValue[actionName];
+}
+
+void InputManager::turnOffInputSource(const InputSource& source)
+{
+    m_deactivatedSourcesFlags |= static_cast<unsigned int>(source);
+}
+
+void InputManager::turnOnInputSource(const InputSource& source)
+{
+    m_deactivatedSourcesFlags &= ~static_cast<unsigned int>(source);
 }

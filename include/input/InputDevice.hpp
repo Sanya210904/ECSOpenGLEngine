@@ -22,6 +22,6 @@ struct InputDevice
 {
     InputDeviceType type;
     int index;
-    std::unordered_map<InputKey, InputDeviceState> currentState;
     InputDeviceStateCallbackFunc stateFunc;
+    std::unordered_map<InputKey, InputDeviceState> currentState;
 };

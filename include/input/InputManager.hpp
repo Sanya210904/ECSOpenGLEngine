@@ -30,6 +30,10 @@ public:
     void mapInputToAction(InputKey key, const std::string& action);
     void unmapInputFromAction(InputKey key, const std::string& action);
 
+    float getActionIsCalled(const std::string& actionName);
+    void turnOffInputSource(const InputSource& source);
+    void turnOnInputSource(const InputSource& source);
+
 private:
     struct ActionEvent
     {
@@ -47,5 +51,7 @@ private:
     bool m_active = false;
     std::unordered_map<InputKey, std::unordered_set<std::string>> m_inputActionMapping {};
     std::unordered_map<std::string, std::vector<ActionCallback>> m_actionCallbacks {};
+    std::unordered_map<std::string, float> m_actionsValue {};
     std::vector<InputDevice> m_devices;
+    unsigned int m_deactivatedSourcesFlags = static_cast<unsigned int>(InputSource::UNKNOWN);
 };
