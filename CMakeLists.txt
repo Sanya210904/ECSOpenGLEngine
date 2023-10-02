@@ -3,6 +3,7 @@ cmake_minimum_required (VERSION 3.8)
 project ("ECSOpenGLEngine" LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory("external")
 
@@ -14,21 +15,19 @@ target_sources(
 		src/core/ResourceManager.cpp
 
 		src/graphics/IndexBuffer.cpp
-		src/graphics/Model.cpp
+		src/graphics/Mesh.cpp
 		src/graphics/Shader.cpp
 		src/graphics/Texture.cpp
 		src/graphics/TextureArray.cpp
 		src/graphics/VertexArrayBuffer.cpp
 		src/graphics/VertexBuffer.cpp
 
-		src/componentsFactory/CameraFactory.cpp
 		src/componentsFactory/PrimitiveFactory.cpp
 		src/componentsFactory/SpriteFactory.cpp
 
 		src/input/Input.cpp
 		src/input/InputManager.cpp
 
-		src/scene/Camera.cpp
 		src/scene/Entity.cpp
 		src/scene/Scene.cpp
 
@@ -55,6 +54,7 @@ target_include_directories(
 
 		GLM_INCLUDE_DIR
 		ENTT_INCLUDE_DIR
+        IMGUI_INCLUDE_DIR
 	PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/src
 	SYSTEM
@@ -79,6 +79,7 @@ target_include_directories(
 	PRIVATE
 		include
 		GLFW_INCLUDE_DIR
+        IMGUI_INCLUDE_DIR
 )
 
 target_link_libraries(
@@ -86,6 +87,7 @@ target_link_libraries(
     PRIVATE
 		${PROJECT_NAME}
 		glfw
+        IMGUI
 )
 
 # # Define the include DIRs

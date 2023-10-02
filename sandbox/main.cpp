@@ -10,7 +10,7 @@
 #include <graphics/VertexBufferLayout.hpp>
 #include <graphics/Shader.hpp>
 #include <graphics/Texture.hpp>
-#include <graphics/Model.hpp>
+#include <graphics/Mesh.hpp>
 
 #include <components/IDComponent.hpp>
 #include <components/TagComponent.hpp>
@@ -18,13 +18,12 @@
 #include <components/PrimitiveComponent.hpp>
 #include <components/CameraComponent.hpp>
 #include <components/SpriteComponent.hpp>
-#include <components/ModelComponent.hpp>
+#include <components/MeshComponent.hpp>
 
 #include <scene/Scene.hpp>
 #include <scene/Entity.hpp>
 
 #include <componentsFactory/PrimitiveFactory.hpp>
-#include <componentsFactory/CameraFactory.hpp>
 #include <componentsFactory/SpriteFactory.hpp>
 
 #include <utils/Debug.hpp>
@@ -33,6 +32,10 @@
 #include <core/ResourceManager.hpp>
 
 #include <GLFW/glfw3.h>
+
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
 class App
 {
@@ -43,6 +46,7 @@ public:
 
 private:
 	void initWindow();
+    void initImGui();
 	void initCallbacks();
 	void initInputDevices();
 	void initInputMappings();
@@ -54,6 +58,14 @@ private:
 
 	unsigned int m_scrWidth {1600};
 	unsigned int m_scrHeight {900};
+
+    enum ActiveWindowFlags
+    {
+        NO_WINDOWS = 0,
+        ENTITIES_PANEL = 1 << 0
+    };
+
+    unsigned int m_activeWindowFlags = NO_WINDOWS;
 };
 
 App::App()
@@ -68,6 +80,7 @@ void App::run()
 {
 	initWindow();
 	initCallbacks();
+    initImGui();
 	initInputDevices();
 	initInputMappings();
 	mainLoop();
@@ -114,6 +127,17 @@ void App::initWindow()
 	glfwSetWindowUserPointer(m_window, this);
 }
 
+void App::initImGui()
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    auto& io = ImGui::GetIO(); (void)io;
+
+	ImGui_ImplGlfw_InitForOpenGL(m_window, true);
+	ImGui_ImplOpenGL3_Init();
+}
+
 void App::initCallbacks()
 {
 	glfwSetKeyCallback(m_window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -141,27 +165,23 @@ void App::initCallbacks()
 
 void App::initInputDevices()
 {
-	m_inputManager.regDevice([&](){
-		InputDevice _;
-		_.type = InputDeviceType::KEYBOARD;
-		_.index = 0;
-		_.stateFunc = std::bind(&Input::getKeyboardState, &m_input, std::placeholders::_1);
-		return _;
-	}());
+	m_inputManager.regDevice({
+		InputDeviceType::KEYBOARD,
+		0,
+		std::bind(&Input::getKeyboardState, &m_input, std::placeholders::_1)
+	});
 
-	m_inputManager.regDevice([&](){
-		InputDevice _;
-		_.type = InputDeviceType::MOUSE;
-		_.index = 0;
-		_.stateFunc = std::bind(&Input::getMouseState, &m_input, std::placeholders::_1);
-		return _;
-	}());
+	m_inputManager.regDevice({
+		InputDeviceType::MOUSE,
+		0,
+		std::bind(&Input::getMouseState, &m_input, std::placeholders::_1)
+	});
 }
 
 void App::initInputMappings()
 {
 	m_inputManager.mapInputToAction(InputKey::KEY_W, "move_forward");
-	m_inputManager.mapInputToAction(InputKey::KEY_S, "move_backwards");
+	m_inputManager.mapInputToAction(InputKey::KEY_S, "move_backward");
 	m_inputManager.mapInputToAction(InputKey::KEY_A, "move_left");
 	m_inputManager.mapInputToAction(InputKey::KEY_D, "move_right");
 	m_inputManager.mapInputToAction(InputKey::KEY_SPACE, "move_up");
@@ -169,8 +189,10 @@ void App::initInputMappings()
 	m_inputManager.mapInputToAction(InputKey::KEY_LEFT_CONTROL, "move_faster");
 	m_inputManager.mapInputToAction(InputKey::KEY_LEFT_ALT, "move_slower");
 
-	m_inputManager.mapInputToAction(InputKey::MOUSE_OFFSET_X, "move_look_x");
-	m_inputManager.mapInputToAction(InputKey::MOUSE_OFFSET_Y, "move_look_y");
+    m_inputManager.mapInputToAction(InputKey::KEY_F1, "open_entities_win");
+
+	m_inputManager.mapInputToAction(InputKey::MOUSE_OFFSET_X, "look_x");
+	m_inputManager.mapInputToAction(InputKey::MOUSE_OFFSET_Y, "look_y");
 }
 
 void App::mainLoop()
@@ -182,6 +204,19 @@ void App::mainLoop()
 	Scene scene;
 	Entity _;
 	glm::mat4 localView, localProj;
+    
+	scene.createEntity("x+").addComponent<PrimitiveComponent>(
+		PrimitiveFactory::createRect({ 1.0f, 0.0f, 0.0f, 1.0f })
+	);
+	scene.createEntity("y+").addComponent<PrimitiveComponent>(
+		PrimitiveFactory::createRect({ 0.0f, 1.0f, 0.0f, 1.0f })
+	);
+	scene.createEntity("z+").addComponent<PrimitiveComponent>(
+		PrimitiveFactory::createRect({ 0.0f, 0.0f, 1.0f, 1.0f })
+	);
+	scene.createEntity("0").addComponent<PrimitiveComponent>(
+		PrimitiveFactory::createRect({ 1.0f, 1.0f, 1.0f, 1.0f })
+	);
 
 	scene.createEntity("Polygon1").addComponent<PrimitiveComponent>(
 		PrimitiveFactory::createPolygon({ 0.6f, 0.0f, 1.0f, 0.5f }, 6)
@@ -192,19 +227,19 @@ void App::mainLoop()
 	);
 
 	_ = scene.createEntity("Model1");
-	_.addComponent<ModelComponent>(
-		Model("res/models/hl2gordon_freeman/gordon.obj")
+	_.addComponent<MeshComponent>(
+		std::make_shared<Mesh>("res/models/hl2gordon_freeman/gordon.obj")
 	);
 	{		
 		auto& transform = _.getComponent<TransformComponent>();
 		transform.translation = { -5.0f, 0.0f, 0.0f };
-		transform.rotation = { 0.0f, 1.57f, 1.57f };
+		transform.rotation = { 0.0f, -1.57f, 1.57f };
 		transform.scale = { 0.05f, 0.05f, 0.05f };
 	};
 
 	_ = scene.createEntity("Model2");
-	_.addComponent<ModelComponent>(
-		Model("res/models/backpack/backpack.obj")
+	_.addComponent<MeshComponent>(
+		std::make_shared<Mesh>("res/models/backpack/backpack.obj")
 	);
 	{
 		auto& transform = _.getComponent<TransformComponent>();
@@ -213,8 +248,8 @@ void App::mainLoop()
 	};
 
 	_ = scene.createEntity("Model3");
-	_.addComponent<ModelComponent>(
-		Model("res/models/mushrooms/Mushrooms1.obj")
+	_.addComponent<MeshComponent>(
+		std::make_shared<Mesh>("res/models/mushrooms/Mushrooms1.obj")
 	);
 	{
 		auto& transform = _.getComponent<TransformComponent>();
@@ -222,81 +257,50 @@ void App::mainLoop()
 		transform.scale = { 0.01f, 0.01f, 0.01f };
 	};
 
-	scene.createEntity("Camera").addComponent<CameraComponent>(
-		CameraFactory::createPerspectiveCamera(m_scrWidth, m_scrHeight, 45.0f, 0.01f, 100.0f)
-	);
+    auto camera = scene.createEntity("Camera");
+    camera.addComponent<CameraComponent>();
 
-	scene.getAllEntitiesWith<CameraComponent>().each(
-		[&](CameraComponent& camera)
-		{
-			std::unordered_map<std::string, Camera::Action> moveSet {
-				{"move_forward", Camera::Action::FORWARD}, 
-				{"move_backwards", Camera::Action::BACKWARDS},
-				{"move_left", Camera::Action::LEFT},
-				{"move_right", Camera::Action::RIGHT},
-				{"move_up", Camera::Action::UP},
-				{"move_down", Camera::Action::DOWN}
-			};
+    m_inputManager.registerActionCallback("look_x", {
+        "Scene",
+        [&camera](InputSource, int, float value)
+        {
+            auto& transform = camera.getComponent<TransformComponent>();
 
-			for (const auto& move : moveSet)
-			{
-				m_inputManager.registerActionCallback(move.first, {
-					"Scene",
-					[&camera, move](InputSource, int, float value)
-					{
-						camera.camera.move(value, 2.0f, 2.0f, move.second);
-						return true;
-					}
-				});
-			}
+            transform.rotation.x -= glm::radians(value * 0.3f);
+            return true;
+        }
+    });
 
-			m_inputManager.registerActionCallback("move_faster", {
-				"Scene",
-				[&camera](InputSource, int, float value)
-				{
-					if (value >= 0.5f)
-						camera.camera.setSpeedMode(Camera::SpeedMode::FAST);
-					else
-						camera.camera.setSpeedMode(Camera::SpeedMode::NORMAL);
-					return true;
-				}
-			});
+    m_inputManager.registerActionCallback("look_y", {
+        "Scene",
+        [&camera](InputSource, int, float value)
+        {
+            auto& transform = camera.getComponent<TransformComponent>();
 
-			m_inputManager.registerActionCallback("move_slower", {
-				"Scene",
-				[&camera](InputSource, int, float value)
-				{
-					if (value >= 0.5f)
-						camera.camera.setSpeedMode(Camera::SpeedMode::SLOW);
-					else
-						camera.camera.setSpeedMode(Camera::SpeedMode::NORMAL);
-					return true;
-				}
-			});
+            transform.rotation.y -= glm::radians(value * 0.3f);
+            transform.rotation.y = glm::clamp(
+                transform.rotation.y,
+                glm::radians(-89.0f),
+                glm::radians(89.0f)
+            );
+            return true;
+        }
+    });
 
-			m_inputManager.registerActionCallback("move_look_x", {
-				"Scene",
-				[&camera](InputSource, int, float value)
-				{
-					camera.camera.transforms.eulerAngles.x += glm::radians(value * 0.3f);
-					return true;
-				}
-			});
+    m_inputManager.registerActionCallback("open_entities_win", {
+        "Scene",
+        [this](InputSource, int, float value)
+        {
+            if (value > 0.0f) this->m_activeWindowFlags ^= ENTITIES_PANEL;
+            return true;
+        }
+    });
 
-			m_inputManager.registerActionCallback("move_look_y", {
-				"Scene",
-				[&camera](InputSource, int, float value)
-				{
-					camera.camera.transforms.eulerAngles.y -= glm::radians(value * 0.3f);
-					camera.camera.transforms.eulerAngles.y = glm::clamp(camera.camera.transforms.eulerAngles.y, glm::radians(-89.0f), glm::radians(89.0f));
-					return true;
-				}
-			});
-		}
-	);
+    const float camSpeed = 2.0f;
 
 	while (!glfwWindowShouldClose(m_window))
 	{
+
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //| GL_STENCIL_BUFFER_BIT);	
 
@@ -304,75 +308,131 @@ void App::mainLoop()
 		delta = time - lastTime;
 		lastTime = time;
 
-		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        auto& cameraComp = camera.getComponent<CameraComponent>();
+        auto& cameraTrans = camera.getComponent<TransformComponent>();
 
-		scene.getAllEntitiesWith<CameraComponent>().each(
-			[&](CameraComponent& camera)
-			{
-				localProj = camera.camera.getProjection();
-				localView = camera.camera.getView();
+        if (m_inputManager.getActionIsCalled("move_forward"))
+        {
+            cameraTrans.translation += cameraComp.getForward(cameraTrans.rotation) * camSpeed * delta;
+        }
+        if (m_inputManager.getActionIsCalled("move_backward"))
+        {
+            cameraTrans.translation -= cameraComp.getForward(cameraTrans.rotation) * camSpeed * delta;
+        }
+        if (m_inputManager.getActionIsCalled("move_right"))
+        {
+            cameraTrans.translation += cameraComp.getRight(cameraTrans.getTransform()) * camSpeed * delta;
+        }
+        if (m_inputManager.getActionIsCalled("move_left"))
+        {
+            cameraTrans.translation -= cameraComp.getRight(cameraTrans.getTransform()) * camSpeed * delta;
+        }
+        if (m_inputManager.getActionIsCalled("move_up"))
+        {
+            cameraTrans.translation += glm::vec3(0.0f, 1.0f, 0.0f) * camSpeed * delta;
+        }
+        if (m_inputManager.getActionIsCalled("move_down"))
+        {
+            cameraTrans.translation -= glm::vec3(0.0f, 1.0f, 0.0f) * camSpeed * delta;
+        }
 
-				camera.camera.onUpdate(delta);
-			});
+        localProj = cameraComp.getProj(static_cast<float>(m_scrWidth) / static_cast<float>(m_scrHeight));
+        localView = CameraComponent::getView(cameraTrans.getTransform());
 
 		scene.getAllEntitiesWith<TransformComponent, PrimitiveComponent>().each(
-			[time, localProj, localView](TransformComponent& transform, PrimitiveComponent& primitive)
+			[time, localProj, localView](TransformComponent& transformComp, PrimitiveComponent& primitiveComp)
 			{
-				transform.rotation = { sin(time), -cos(time), time };
+                transformComp.translation = primitiveComp.color;
+				// transformComp.rotation = { sin(time), -cos(time), time };
 
-				primitive.shader->bind();
-				primitive.vao->bind();
+				primitiveComp.shader->bind();
+				primitiveComp.vao->bind();
 
-				primitive.shader->setUniform("model", transform.getTransform());
-				primitive.shader->setUniform("view", localView);
-				primitive.shader->setUniform("proj", localProj);
-				glDrawArrays(primitive.type, 0, primitive.vertexCount);
+				primitiveComp.shader->setUniform("model", transformComp.getTransform());
+				primitiveComp.shader->setUniform("view", localView);
+				primitiveComp.shader->setUniform("proj", localProj);
+				glDrawArrays(primitiveComp.type, 0, primitiveComp.vertexCount);
 
-				primitive.vao->unbind();
-				primitive.shader->unbind();
+				primitiveComp.vao->unbind();
+				primitiveComp.shader->unbind();
 			});
 
 		scene.getAllEntitiesWith<TransformComponent, SpriteComponent>().each(
-			[time, localProj, localView](TransformComponent& transform, SpriteComponent& sprite)
+			[time, localProj, localView](TransformComponent& transformComp, SpriteComponent& spriteComp)
 			{
-				transform.translation = { 3.0f, 0.0f, 0.0f};
-				transform.rotation = { cos(time), -sin(time), time };
+				transformComp.translation = { 3.0f, 0.0f, 0.0f};
+				transformComp.rotation = { cos(time), -sin(time), time };
 
-				sprite.shader->bind();
-				sprite.vao->bind();
+				spriteComp.shader->bind();
+				spriteComp.vao->bind();
 
-				sprite.shader->setUniform("model", transform.getTransform());
-				sprite.shader->setUniform("view", localView);
-				sprite.shader->setUniform("proj", localProj);
-				sprite.texture->bind();
-				glDrawArrays(sprite.type, 0, sprite.vertexCount);
+				spriteComp.shader->setUniform("model", transformComp.getTransform());
+				spriteComp.shader->setUniform("view", localView);
+				spriteComp.shader->setUniform("proj", localProj);
+				spriteComp.texture->bind();
+				glDrawArrays(spriteComp.type, 0, spriteComp.vertexCount);
 
-				sprite.texture->unbind();
-				sprite.vao->unbind();
-				sprite.shader->unbind();
+				spriteComp.texture->unbind();
+				spriteComp.vao->unbind();
+				spriteComp.shader->unbind();
 			});
 		
-		scene.getAllEntitiesWith<TransformComponent, ModelComponent>().each(
-			[time, localProj, localView](TransformComponent& transform, ModelComponent& model)
+		scene.getAllEntitiesWith<TransformComponent, MeshComponent>().each(
+			[time, localProj, localView](TransformComponent& transformComp, MeshComponent& meshComp)
 			{				
-				model.model.shader->bind();
-				model.model.shader->setUniform("model", transform.getTransform());
-				model.model.shader->setUniform("view", localView);
-				model.model.shader->setUniform("proj", localProj);
+				meshComp.meshGeometry->shader->bind();
+				meshComp.meshGeometry->shader->setUniform("model", transformComp.getTransform());
+				meshComp.meshGeometry->shader->setUniform("view", localView);
+				meshComp.meshGeometry->shader->setUniform("proj", localProj);
 
 				glEnable(GL_CULL_FACE);
-				model.model.draw();
+				meshComp.meshGeometry->draw();
 				glDisable(GL_CULL_FACE);
 
-				model.model.shader->unbind();
+				meshComp.meshGeometry->shader->unbind();
 			}
 		);
 		
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        
+        if (m_activeWindowFlags == NO_WINDOWS)
+        {
+            glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            m_inputManager.turnOnInputSource(InputSource::MOUSE);
+        }
+
+        if (m_activeWindowFlags & ENTITIES_PANEL)
+        {
+            glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            m_inputManager.turnOffInputSource(InputSource::MOUSE);
+            
+            if (ImGui::Begin("Entities Panel"))
+            {
+                ImGui::SetWindowFontScale(1.3f);
+                ImGui::InputFloat3("RotCam", glm::value_ptr(cameraTrans.rotation));
+                
+                auto forw = cameraComp.getForward(cameraTrans.rotation);
+
+                ImGui::Text("Forward: %f, %f, %f", forw.x, forw.y, forw.z);
+                ImGui::End();
+            }
+        }
+
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        
 		glfwPollEvents();
 		m_input.updateCursorState(m_window);
 		m_inputManager.processInput();
 		glfwSwapBuffers(m_window);
 	}
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 int main()
