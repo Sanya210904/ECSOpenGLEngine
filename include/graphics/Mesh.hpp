@@ -17,27 +17,31 @@ struct Vertex
     bool operator==(const Vertex& other) const;
 };
 
-struct Mesh
+struct Submesh
 {
-    Mesh(const std::shared_ptr<VertexArrayBuffer>& vao);
+    Submesh(const std::shared_ptr<VertexArrayBuffer>& vao);
+
+    // To be removed by defining system
     void draw(std::shared_ptr<Shader> shader) const;
     
     std::pair<std::string, std::shared_ptr<Texture>> texture;
     std::shared_ptr<VertexArrayBuffer> vao;
 };
 
-class Model
+class Mesh
 {
 public:
-    Model() = default;
-    Model(const std::string& filepath);
+    Mesh() = default;
+    Mesh(const std::string& filepath);
 
     void load(const std::string& filepath);
+
+    // To be removed by defining system
     void draw();
 
     std::shared_ptr<Shader> shader;
     
 private:
     std::string m_filepath;
-    std::vector<Mesh> m_meshes;
+    std::vector<Submesh> m_submeshes;
 };

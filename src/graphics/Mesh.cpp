@@ -1,4 +1,4 @@
-#include <graphics/Model.hpp>
+#include <graphics/Mesh.hpp>
 
 #include <filesystem>
 #include <functional>
@@ -28,11 +28,11 @@ namespace std
     };
 }
 
-Mesh::Mesh(const std::shared_ptr<VertexArrayBuffer>& vao)
+Submesh::Submesh(const std::shared_ptr<VertexArrayBuffer>& vao)
     :
     vao(vao) { }
 
-void Mesh::draw(std::shared_ptr<Shader> shader) const
+void Submesh::draw(std::shared_ptr<Shader> shader) const
 {
     //unsigned int diffuseNr = 1;
     //unsigned int specularNr = 1;
@@ -62,20 +62,20 @@ void Mesh::draw(std::shared_ptr<Shader> shader) const
     vao->unbind();
 }
 
-Model::Model(const std::string& filepath)
+Mesh::Mesh(const std::string& filepath)
 {
     shader = std::make_shared<Shader>("res/shaders/model.vert", "res/shaders/model.frag");
 
     load(filepath);
 }
 
-void Model::draw()
+void Mesh::draw()
 {
-    for (const auto& mesh : m_meshes)
+    for (const auto& mesh : m_submeshes)
         mesh.draw(shader);
 }
 
-void Model::load(const std::string& filepath)
+void Mesh::load(const std::string& filepath)
 {
     std::filesystem::path path = filepath;
 
@@ -169,7 +169,7 @@ void Model::load(const std::string& filepath)
 
         vao->setIndexBuffer(ebo);
 
-        auto& mesh = m_meshes.emplace_back(vao);
+        auto& submesh = m_submeshes.emplace_back(vao);
 
         if (materialId >= 0)
         {
@@ -177,7 +177,7 @@ void Model::load(const std::string& filepath)
 
             if (!material.diffuse_texname.empty())
             {
-                mesh.texture = std::make_pair(std::string("textureDiffuse"), ResourceManager::getTexture((path.parent_path() / material.diffuse_texname).string()));
+                submesh.texture = std::make_pair(std::string("textureDiffuse"), ResourceManager::getTexture((path.parent_path() / material.diffuse_texname).string()));
             }
         }
     }
