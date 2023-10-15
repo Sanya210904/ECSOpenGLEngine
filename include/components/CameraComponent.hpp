@@ -1,5 +1,6 @@
 #pragma once
 
+#include "glm/gtc/constants.hpp"
 #include <glm/glm.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
@@ -33,27 +34,22 @@ struct CameraComponent
         return glm::inverse(tMat);
     }
 
-    static glm::vec3 getForward(const glm::vec3& rotation)
+    static glm::vec3 getForward(const glm::mat4& tMat)
     {
         // return glm::normalize(glm::vec3(getView(tMat)[2])) * glm::vec3(1, 1, -1);
-
-        return glm::normalize(glm::vec3(
-            cos(rotation.x) * cos(rotation.y),
-            sin(rotation.y),
-            sin(rotation.x) * cos(rotation.y)
-        ));
-
-        // return glm::normalize(rotation);
+        return glm::normalize(-glm::vec3(tMat[2]));
     }
 
     static glm::vec3 getRight(const glm::mat4& tMat)
     {
-        return glm::normalize(glm::vec3(getView(tMat)[0]));
+        // return glm::normalize(glm::vec3(getView(tMat)[0]));
+        return glm::normalize(glm::vec3(tMat[0]));
     }
 
     static glm::vec3 getUp(const glm::mat4& tMat)
     {
-        return glm::normalize(glm::vec3(getView(tMat)[1]));
+        // return glm::normalize(glm::vec3(getView(tMat)[1]));
+        return glm::normalize(glm::vec3(tMat[1]));
     }
 
     float fov { 45.0f };

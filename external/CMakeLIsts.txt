@@ -124,11 +124,11 @@ set(EXTERNAL_SOURCE_LOCATION ${CMAKE_SOURCE_DIR}/external)
 
 #==================== GLFW ====================
 
-git_download(
-    "https://github.com/glfw/glfw.git"
-    ${EXTERNAL_SOURCE_LOCATION}
-    glfw
-)
+# git_download(
+#     "https://github.com/glfw/glfw.git"
+#     ${EXTERNAL_SOURCE_LOCATION}
+#     glfw
+# )
 
 set(GLFW_DIR ${EXTERNAL_SOURCE_LOCATION}/glfw CACHE INTERNAL "")
 set(GLFW_INCLUDE_DIR ${GLFW_DIR}/include CACHE INTERNAL "")
@@ -145,11 +145,11 @@ message(STATUS "GLFW include dir: ${GLFW_INCLUDE_DIR}")
 
 #==================== ENTT ====================
 
-git_download(
-    "https://github.com/glfw/glfw.git"
-    ${EXTERNAL_SOURCE_LOCATION}
-    entt
-)
+# git_download(
+#     "https://github.com/glfw/glfw.git"
+#     ${EXTERNAL_SOURCE_LOCATION}
+#     entt
+# )
 
 set(ENTT_DIR ${EXTERNAL_SOURCE_LOCATION}/entt CACHE INTERNAL "")
 set(ENTT_INCLUDE_DIR ${ENTT_DIR}/single_include CACHE INTERNAL "")
@@ -160,11 +160,11 @@ message(STATUS "Entt include dir: ${ENTT_INCLUDE_DIR}")
 
 #==================== GLM =====================
 
-git_download(
-    "https://github.com/g-truc/glm.git"
-    ${EXTERNAL_SOURCE_LOCATION}
-    glm
-)
+# git_download(
+#     "https://github.com/g-truc/glm.git"
+#     ${EXTERNAL_SOURCE_LOCATION}
+#     glm
+# )
 
 set(GLM_DIR "${EXTERNAL_SOURCE_LOCATION}/glm" CACHE INTERNAL "")
 set(GLM_INCLUDE_DIR "${GLM_DIR}" CACHE INTERNAL "")
@@ -175,11 +175,11 @@ message(STATUS "Glm include dir: ${GLM_INCLUDE_DIR}")
 
 #==================== STB =====================
 
-git_download(
-    "https://github.com/nothings/stb.git"
-    ${EXTERNAL_SOURCE_LOCATION}
-    stb
-)
+# git_download(
+#     "https://github.com/nothings/stb.git"
+#     ${EXTERNAL_SOURCE_LOCATION}
+#     stb
+# )
 
 set(STB_DIR "${EXTERNAL_SOURCE_LOCATION}/stb" CACHE INTERNAL "")
 set(STB_INCLUDE_DIR "${STB_DIR}" CACHE INTERNAL "")
@@ -188,11 +188,11 @@ message(STATUS "Stb include dir: ${STB_INCLUDE_DIR}")
 
 #================== TINY_OBJ ==================
 
-git_download(
-    "https://github.com/tinyobjloader/tinyobjloader.git"
-    ${EXTERNAL_SOURCE_LOCATION}
-    tinyobj
-)
+# git_download(
+#     "https://github.com/tinyobjloader/tinyobjloader.git"
+#     ${EXTERNAL_SOURCE_LOCATION}
+#     tinyobj
+# )
 
 set(TINY_OBJ_DIR "${EXTERNAL_SOURCE_LOCATION}/tinyobj" CACHE INTERNAL "")
 set(TINY_OBJ_INCLUDE_DIR "${TINY_OBJ_DIR}" CACHE INTERNAL "")
@@ -203,11 +203,11 @@ message(STATUS "Tiny Obj include dir: ${TINY_OBJ_INCLUDE_DIR}")
 
 #==================== IMGUI ===================
 
-git_download(
-    "https://github.com/ocornut/imgui.git"
-    ${EXTERNAL_SOURCE_LOCATION}
-    imgui
-)
+# git_download(
+#     "https://github.com/ocornut/imgui.git"
+#     ${EXTERNAL_SOURCE_LOCATION}
+#     imgui
+# )
 
 set(IMGUI_DIR "${EXTERNAL_SOURCE_LOCATION}/imgui" CACHE INTERNAL "")
 set(IMGUI_INCLUDE_DIR "${IMGUI_DIR}" CACHE INTERNAL "")

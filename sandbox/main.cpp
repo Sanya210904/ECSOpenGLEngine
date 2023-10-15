@@ -215,7 +215,7 @@ void App::mainLoop()
 		PrimitiveFactory::createRect({ 0.0f, 0.0f, 1.0f, 1.0f })
 	);
 	scene.createEntity("0").addComponent<PrimitiveComponent>(
-		PrimitiveFactory::createRect({ 1.0f, 1.0f, 1.0f, 1.0f })
+		PrimitiveFactory::createRect({ 0.0f, 0.0f, 0.0f, 1.0f })
 	);
 
 	scene.createEntity("Polygon1").addComponent<PrimitiveComponent>(
@@ -233,7 +233,8 @@ void App::mainLoop()
 	{		
 		auto& transform = _.getComponent<TransformComponent>();
 		transform.translation = { -5.0f, 0.0f, 0.0f };
-		transform.rotation = { 0.0f, -1.57f, 1.57f };
+		// transform.rotation = { 0.0f, -1.57f, 1.57f };
+        transform.eulerRotate({ 0.0f, 1.57f, 1.57f });
 		transform.scale = { 0.05f, 0.05f, 0.05f };
 	};
 
@@ -266,7 +267,9 @@ void App::mainLoop()
         {
             auto& transform = camera.getComponent<TransformComponent>();
 
-            transform.rotation.x -= glm::radians(value * 0.3f);
+            glm::quat yaw = glm::angleAxis(glm::radians(-value) * 0.3f, glm::vec3(0.0f, 1.0f, 0.0f));
+            transform.orientation = glm::normalize(yaw * transform.orientation);
+
             return true;
         }
     });
@@ -276,13 +279,24 @@ void App::mainLoop()
         [&camera](InputSource, int, float value)
         {
             auto& transform = camera.getComponent<TransformComponent>();
+            auto& cameraComp = camera.getComponent<CameraComponent>();
+            
+            glm::quat pitch = glm::angleAxis(glm::radians(-value) * 0.3f, glm::vec3(1.0f, 0.0f, 0.0f));
+            transform.orientation = glm::normalize(transform.orientation * pitch);
 
-            transform.rotation.y -= glm::radians(value * 0.3f);
-            transform.rotation.y = glm::clamp(
-                transform.rotation.y,
-                glm::radians(-89.0f),
-                glm::radians(89.0f)
-            );
+            // transform.orientation.x = glm::clamp(transform.orientation.x, -0.5f, 0.5f);
+            // transform.orientation.z = glm::clamp(transform.orientation.z, -0.5f, 0.5f);
+
+            glm::vec3 eulerR = transform.getEulerRotation();
+            eulerR.y = glm::clamp(eulerR.y, -45.0f, 45.0f);
+            transform.eulerRotate(eulerR);
+
+            // transform.rotation.y -= glm::radians(value * 0.3f);
+            // transform.rotation.y = glm::clamp(
+            //     transform.rotation.y,
+            //     glm::radians(-89.0f),
+            //     glm::radians(89.0f)
+            // );
             return true;
         }
     });
@@ -313,11 +327,11 @@ void App::mainLoop()
 
         if (m_inputManager.getActionIsCalled("move_forward"))
         {
-            cameraTrans.translation += cameraComp.getForward(cameraTrans.rotation) * camSpeed * delta;
+            cameraTrans.translation += cameraComp.getForward(cameraTrans.getTransform()) * camSpeed * delta;
         }
         if (m_inputManager.getActionIsCalled("move_backward"))
         {
-            cameraTrans.translation -= cameraComp.getForward(cameraTrans.rotation) * camSpeed * delta;
+            cameraTrans.translation -= cameraComp.getForward(cameraTrans.getTransform()) * camSpeed * delta;
         }
         if (m_inputManager.getActionIsCalled("move_right"))
         {
@@ -361,7 +375,8 @@ void App::mainLoop()
 			[time, localProj, localView](TransformComponent& transformComp, SpriteComponent& spriteComp)
 			{
 				transformComp.translation = { 3.0f, 0.0f, 0.0f};
-				transformComp.rotation = { cos(time), -sin(time), time };
+                transformComp.eulerRotate({ -sin(time), cos(time), time });
+				// transformComp.rotation = { cos(time), -sin(time), time };
 
 				spriteComp.shader->bind();
 				spriteComp.vao->bind();
@@ -411,13 +426,16 @@ void App::mainLoop()
             
             if (ImGui::Begin("Entities Panel"))
             {
-                ImGui::SetWindowFontScale(1.3f);
-                ImGui::InputFloat3("RotCam", glm::value_ptr(cameraTrans.rotation));
-                
-                auto forw = cameraComp.getForward(cameraTrans.rotation);
-
-                ImGui::Text("Forward: %f, %f, %f", forw.x, forw.y, forw.z);
-                ImGui::End();
+            //     ImGui::SetWindowFontScale(1.3f);
+            //     // ImGui::InputFloat3("RotCam", glm::value_ptr(cameraTrans.rotation));
+            //     
+            //     auto forw = cameraComp.getForward(cameraTrans.getTransform());
+            //     ImGui::Text("Forward vector - x:[%f], y:[%f], z:[%f]", forw.x, forw.y, forw.z);
+            //
+            //     auto orientation = cameraTrans.orientation;
+            //     ImGui::Text("Orientation quat - w:[%f], i:[%f], j:[%f], k:[%f]", orientation.w, orientation.x, orientation.y, orientation.z);
+            //     ImGui::DragFloat4("Orientation quat:", glm::value_ptr(orientation), 0.05f);
+            //     ImGui::End();
             }
         }
 
