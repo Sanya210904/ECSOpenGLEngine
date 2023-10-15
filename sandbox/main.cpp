@@ -435,7 +435,7 @@ void App::mainLoop()
             //     auto orientation = cameraTrans.orientation;
             //     ImGui::Text("Orientation quat - w:[%f], i:[%f], j:[%f], k:[%f]", orientation.w, orientation.x, orientation.y, orientation.z);
             //     ImGui::DragFloat4("Orientation quat:", glm::value_ptr(orientation), 0.05f);
-            //     ImGui::End();
+                ImGui::End();
             }
         }
 
