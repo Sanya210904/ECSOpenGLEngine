@@ -4,17 +4,22 @@
         {
             "name": "windows-base",
             "hidden": true,
-            "generator": "Visual Studio 17 2022",
+            "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "installDir": "${sourceDir}/install/${presetName}",
             "cacheVariables": {
-                "CMAKE_C_COMPILER": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.33.31629/bin/Hostx64/x64/cl.exe",
-                "CMAKE_CXX_COMPILER": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.33.31629/bin/Hostx64/x64/cl.exe"
+                "CMAKE_C_COMPILER": "cl",
+                "CMAKE_CXX_COMPILER": "cl"
             },
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
                 "rhs": "Windows"
+            },
+            "vendor": {
+                "microsoft.com/VisualStudioSettings/CMake/1.0": {
+                    "hostOS": [ "Windows" ]
+                }
             }
         },
         {
@@ -40,7 +45,7 @@
             }
         },
         {
-            "name": "clang-base",
+            "name": "clang-ninja-base",
             "hidden": true,
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/build/${presetName}",
@@ -53,7 +58,7 @@
         {
             "name": "ninja-x86_x64-clang-debug",
             "displayName": "Clang x64 Debug",
-            "inherits": "clang-base",
+            "inherits": "clang-ninja-base",
             "architecture": {
                 "value": "x64",
                 "strategy": "external"
@@ -66,6 +71,37 @@
             "name": "ninja-x86_x64-clang-release",
             "displayName": "Clang x64 Release",
             "inherits": "ninja-x86_x64-clang-debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "clang-make-base",
+            "hidden": true,
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "installDir": "${sourceDir}/install/${presetName}",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++"
+            }
+        },
+        {
+            "name": "make-x86_x64-clang-debug",
+            "displayName": "Clang Make x64 Debug",
+            "inherits": "clang-make-base",
+            "architecture": {
+                "value": "x64",
+                "strategy": "external"
+            },
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "make-x86_x64-clang-release",
+            "displayName": "Clang Make x64 Release",
+            "inherits": "make-x86_x64-clang-debug",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }
