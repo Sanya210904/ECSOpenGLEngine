@@ -2,8 +2,7 @@
 
 #include <utils/UUID.hpp>
 
-struct IDComponent
-{
+struct IDComponent {
     IDComponent() = default;
     IDComponent(const IDComponent&) = default;
 

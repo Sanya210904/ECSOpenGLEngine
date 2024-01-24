@@ -1,13 +1,12 @@
 #pragma once
 
 #include <entt/entt.hpp>
-#include <utils/UUID.hpp>
 #include <unordered_map>
+#include <utils/UUID.hpp>
 
 class Entity;
 
-class Scene
-{
+class Scene {
 public:
     Scene();
     ~Scene();
@@ -17,9 +16,8 @@ public:
 
     Entity getEntityByUUID(UUID uuid);
 
-    template<typename... Components>
-    auto getAllEntitiesWith()
-    {
+    template <typename... Components>
+    auto getAllEntitiesWith() {
         return m_registry.view<Components...>();
     }
 

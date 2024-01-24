@@ -3,8 +3,7 @@
 #include <glad/glad.h>
 #include <vector>
 
-class IndexBuffer
-{
+class IndexBuffer {
 public:
     IndexBuffer(const void* data, unsigned int count, GLenum usage = GL_STATIC_DRAW);
     ~IndexBuffer();

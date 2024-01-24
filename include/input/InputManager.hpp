@@ -1,22 +1,20 @@
 #pragma once
 
+#include <functional>
+#include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <functional>
-#include <string>
 
 #include "InputDevice.hpp"
 
-class InputManager
-{
+class InputManager {
 public:
     InputManager();
     ~InputManager();
 
     using ActionCallbackFunc = std::function<bool(InputSource, int, float)>;
-    struct ActionCallback
-    {
+    struct ActionCallback {
         std::string ref;
         ActionCallbackFunc func;
     };
@@ -35,8 +33,7 @@ public:
     void turnOnInputSource(const InputSource& source);
 
 private:
-    struct ActionEvent
-    {
+    struct ActionEvent {
         std::string actionName;
         InputSource source;
         int sourceIndex;
@@ -49,9 +46,9 @@ private:
     void propagateActionEvent(const ActionEvent& event);
 
     bool m_active = false;
-    std::unordered_map<InputKey, std::unordered_set<std::string>> m_inputActionMapping {};
-    std::unordered_map<std::string, std::vector<ActionCallback>> m_actionCallbacks {};
-    std::unordered_map<std::string, float> m_actionsValue {};
+    std::unordered_map<InputKey, std::unordered_set<std::string>> m_inputActionMapping{};
+    std::unordered_map<std::string, std::vector<ActionCallback>> m_actionCallbacks{};
+    std::unordered_map<std::string, float> m_actionsValue{};
     std::vector<InputDevice> m_devices;
     unsigned int m_deactivatedSourcesFlags = static_cast<unsigned int>(InputSource::UNKNOWN);
 };

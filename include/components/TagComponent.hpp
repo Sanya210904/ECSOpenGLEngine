@@ -2,13 +2,11 @@
 
 #include <string>
 
-struct TagComponent
-{
+struct TagComponent {
     TagComponent() = default;
     TagComponent(const TagComponent&) = default;
     TagComponent(const std::string& tag)
-        :
-        tag(tag) { }
+        : tag(tag) {}
 
     std::string tag;
 };

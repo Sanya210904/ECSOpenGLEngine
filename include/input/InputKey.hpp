@@ -1,7 +1,6 @@
 #pragma once
 
-enum class InputKey
-{
+enum class InputKey {
     UNKNOWN = -1,
 
     KEY_SPACE = 32,
@@ -148,8 +147,7 @@ enum class InputKey
     MOUSE_LAST = MOUSE_B8
 };
 
-enum class InputSource
-{
+enum class InputSource {
     UNKNOWN = 0,
 
     KEYBOARD = 1 << 0,
@@ -157,8 +155,7 @@ enum class InputSource
     GAMEPAD = 1 << 2
 };
 
-inline InputSource getInputSourceFromKey(InputKey key)
-{
+inline InputSource getInputSourceFromKey(InputKey key) {
     if (key <= InputKey::KEY_LAST)
         return InputSource::KEYBOARD;
     else if (key <= InputKey::GAMEPAD_LAST)

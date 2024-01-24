@@ -1,7 +1,8 @@
 #pragma once
 
-class UUID
-{
+#include <cstddef>
+
+class UUID {
 public:
     UUID();
     UUID(long long uuid);
@@ -13,16 +14,12 @@ private:
     long long m_UUID;
 };
 
-namespace std
-{
-    template<typename T> struct hash;
+namespace std {
+template <typename T>
+struct hash;
 
-    template<>
-    struct hash<UUID>
-    {
-        size_t operator()(const UUID& uuid) const
-        {
-            return (long long)uuid;
-        }
-    };
-}
+template <>
+struct hash<UUID> {
+    size_t operator()(const UUID& uuid) const { return (long long)uuid; }
+};
+} // namespace std

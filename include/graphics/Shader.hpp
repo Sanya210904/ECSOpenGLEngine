@@ -7,8 +7,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class Shader
-{
+class Shader {
 public:
     Shader(const std::string& vertexFilepath, const std::string& fragmentFilepath);
     ~Shader();
@@ -17,7 +16,7 @@ public:
     void unbind() const;
 
     unsigned int getID() const;
-    
+
     void setUniform(const std::string& name, bool value);
     void setUniform(const std::string& name, int value);
     void setUniform(const std::string& name, unsigned int value);
@@ -37,5 +36,5 @@ private:
     unsigned int createProgram(unsigned int vertexProgramID, unsigned int fragmentProgramID);
     int getUniformLocation(const std::string& name);
 
-    static void checkCompileErrors(unsigned int programID, const std::string& type);    
+    static void checkCompileErrors(unsigned int programID, const std::string& type);
 };

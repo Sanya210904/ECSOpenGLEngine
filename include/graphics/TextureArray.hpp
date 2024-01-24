@@ -1,10 +1,9 @@
 #pragma once
 
-#include <string>
 #include <glad/glad.h>
+#include <string>
 
-class TextureArray
-{
+class TextureArray {
 public:
     TextureArray(const std::string& filePath, int tileWidth, int tileHeight);
     ~TextureArray();
@@ -18,6 +17,5 @@ public:
 
 private:
     unsigned int m_textureID;
-    int m_width,
-        m_height;
+    int m_width, m_height;
 };

@@ -2,8 +2,7 @@
 
 #include <glad/glad.h>
 
-class VertexBuffer
-{
+class VertexBuffer {
 public:
     VertexBuffer(const void* data, unsigned int size, GLenum usage = GL_STATIC_DRAW);
     ~VertexBuffer();

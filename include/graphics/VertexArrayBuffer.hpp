@@ -7,8 +7,7 @@ class VertexBuffer;
 class VertexBufferLayout;
 class IndexBuffer;
 
-class VertexArrayBuffer
-{
+class VertexArrayBuffer {
 public:
     VertexArrayBuffer(const VertexBuffer& vb, const VertexBufferLayout& layout);
     ~VertexArrayBuffer();

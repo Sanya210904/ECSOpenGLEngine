@@ -5,21 +5,15 @@
 
 #include "InputKey.hpp"
 
-enum class InputDeviceType
-{
-    KEYBOARD,
-    MOUSE,
-    GAMEPAD
-};
+enum class InputDeviceType { KEYBOARD, MOUSE, GAMEPAD };
 
-struct InputDeviceState
-{
+struct InputDeviceState {
     float value;
 };
 
-using InputDeviceStateCallbackFunc = std::function<std::unordered_map<InputKey, InputDeviceState>(int)>;
-struct InputDevice
-{
+using InputDeviceStateCallbackFunc =
+    std::function<std::unordered_map<InputKey, InputDeviceState>(int)>;
+struct InputDevice {
     InputDeviceType type;
     int index;
     InputDeviceStateCallbackFunc stateFunc;
