@@ -17,7 +17,7 @@ Entity Scene::createEntity(const std::string& name) {
     auto& tag = entity.addComponent<TagComponent>();
     tag.tag = name.empty() ? "Entity" : name;
 
-    m_entityMap[uuid] = entity;
+    // m_entityMap[uuid] = entity;
 
     return entity;
 }
